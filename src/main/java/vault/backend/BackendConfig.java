@@ -15,17 +15,17 @@ public class BackendConfig {
 	private boolean forceNoCache;
 	private String listingVisibility;
 	private long maxLeaseTtl;
-	private String passthroughRequestHeaders;
+	private List<String> passthroughRequestHeaders;
 	private String tokenType;
 
-	public BackendConfig(List<String> auditNonHmacRequestKeys, List<String> auditNonHmacResponseKeys, long defaultLeaseTtl, boolean forceNoCache, String listingVisibility, long maxLeaseTtl, String passthroughRequestHeaders, String tokenType) {
+	public BackendConfig(List<String> auditNonHmacRequestKeys, List<String> auditNonHmacResponseKeys, long defaultLeaseTtl, boolean forceNoCache, String listingVisibility, long maxLeaseTtl, List<String> passthroughRequestHeaders, String tokenType) {
 		this.auditNonHmacRequestKeys = copyList(auditNonHmacRequestKeys);
 		this.auditNonHmacResponseKeys = copyList(auditNonHmacResponseKeys);
 		this.defaultLeaseTtl = defaultLeaseTtl;
 		this.forceNoCache = forceNoCache;
 		this.listingVisibility = listingVisibility;
 		this.maxLeaseTtl = maxLeaseTtl;
-		this.passthroughRequestHeaders = passthroughRequestHeaders;
+		this.passthroughRequestHeaders = copyList(passthroughRequestHeaders);
 		this.tokenType = tokenType;
 	}
 
@@ -57,7 +57,7 @@ public class BackendConfig {
 		return this.maxLeaseTtl;
 	}
 
-	public String getPassthroughRequestHeaders() {
+	public List<String> getPassthroughRequestHeaders() {
 		return this.passthroughRequestHeaders;
 	}
 

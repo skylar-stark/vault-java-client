@@ -39,21 +39,21 @@ public final class MountConfigOutput implements Serializable {
 
 	@JsonInclude(Include.NON_EMPTY)
 	@JsonProperty("passthrough_request_headers")
-	private String passthroughRequestHeaders;
+	private List<String> passthroughRequestHeaders;
 
 	@JsonInclude(Include.NON_EMPTY)
 	@JsonProperty("token_type")
 	private String tokenType;
 
 	@JsonCreator
-	public MountConfigOutput(@JsonProperty("audit_non_hmac_request_keys") List<String> auditNonHmacRequestKeys,@JsonProperty("audit_non_hmac_response_keys") List<String> auditNonHmacResponseKeys, @JsonProperty("default_lease_ttl") long defaultLeaseTtl, @JsonProperty("force_no_cache") boolean forceNoCache, @JsonProperty("listing_visibility") String listingVisibility, @JsonProperty("max_lease_ttl") long maxLeaseTtl, @JsonProperty("passthrough_request_headers") String passthroughRequestHeaders, @JsonProperty("token_type") String tokenType) {
+	public MountConfigOutput(@JsonProperty("audit_non_hmac_request_keys") List<String> auditNonHmacRequestKeys,@JsonProperty("audit_non_hmac_response_keys") List<String> auditNonHmacResponseKeys, @JsonProperty("default_lease_ttl") long defaultLeaseTtl, @JsonProperty("force_no_cache") boolean forceNoCache, @JsonProperty("listing_visibility") String listingVisibility, @JsonProperty("max_lease_ttl") long maxLeaseTtl, @JsonProperty("passthrough_request_headers") List<String> passthroughRequestHeaders, @JsonProperty("token_type") String tokenType) {
 		this.auditNonHmacRequestKeys = copyList(auditNonHmacRequestKeys);
 		this.auditNonHmacResponseKeys = copyList(auditNonHmacResponseKeys);
 		this.defaultLeaseTtl = defaultLeaseTtl;
 		this.forceNoCache = forceNoCache;
 		this.listingVisibility = listingVisibility;
 		this.maxLeaseTtl = maxLeaseTtl;
-		this.passthroughRequestHeaders = passthroughRequestHeaders;
+		this.passthroughRequestHeaders = copyList(passthroughRequestHeaders);
 		this.tokenType = tokenType;
 	}
 
@@ -81,7 +81,7 @@ public final class MountConfigOutput implements Serializable {
 		return this.maxLeaseTtl;
 	}
 
-	public String getPassthroughRequestHeaders() {
+	public List<String> getPassthroughRequestHeaders() {
 		return this.passthroughRequestHeaders;
 	}
 
