@@ -6,14 +6,13 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import vault.domain.auth.KeyList;
+import vault.domain.KeyList;
 import vault.domain.auth.VaultAuthentication;
 import vault.domain.auth.token.TokenLookupResponse;
 import vault.domain.kv.Metadata;
@@ -140,16 +139,12 @@ public abstract class HttpResponse<T> implements Serializable {
 		private static final long serialVersionUID = -520565096901127714L;
 	}
 
-	public static final class KVHttpResponseV1 extends HttpResponse<Map<String, String>> {
-		private static final long serialVersionUID = 1001575423057892168L;
+	public static final class KeyListHttpResponse extends HttpResponse<KeyList> {
+		private static final long serialVersionUID = -7931559482015221173L;
 	}
 
-	public static final class KVHttpResponseV2 extends HttpResponse<V2Response> {
-		private static final long serialVersionUID = 540329830815220020L;
-	}
-
-	public static final class KVListHttpResponse extends HttpResponse<Map<String, Set<String>>> {
-		private static final long serialVersionUID = 5704787781779684001L;
+	public static final class KvV2HttpResponse extends HttpResponse<V2Response> {
+		private static final long serialVersionUID = -8786210996376002666L;
 	}
 
 	public static final class MountHttpResponse extends HttpResponse<Map<String, Map<String, MountOutput>>> {
@@ -182,10 +177,6 @@ public abstract class HttpResponse<T> implements Serializable {
 
 	public static final class StringMapHttpResponse extends HttpResponse<Map<String, String>> {
 		private static final long serialVersionUID = 1320358832831994708L;
-	}
-
-	public static final class KeyListHttpResponse extends HttpResponse<KeyList> {
-		private static final long serialVersionUID = -7931559482015221173L;
 	}
 
 	public static final class TokenLookupResponseHttpResponse extends HttpResponse<TokenLookupResponse> {

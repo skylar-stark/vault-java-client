@@ -7,13 +7,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import vault.Vault;
 import vault.backend.BackendConfig;
 import vault.backend.Backends;
 import vault.backend.VaultBackend;
+import vault.domain.KeyList;
 import vault.domain.kv.Configuration;
 import vault.domain.kv.Metadata;
 import vault.domain.kv.Options;
@@ -21,11 +21,11 @@ import vault.domain.kv.SecretMetadata;
 import vault.domain.kv.V2Request;
 import vault.domain.kv.V2Response;
 import vault.domain.response.HttpResponse;
-import vault.domain.response.HttpResponse.KVHttpResponseV1;
-import vault.domain.response.HttpResponse.KVHttpResponseV2;
-import vault.domain.response.HttpResponse.KVListHttpResponse;
+import vault.domain.response.HttpResponse.KvV2HttpResponse;
+import vault.domain.response.HttpResponse.KeyListHttpResponse;
 import vault.domain.response.HttpResponse.MetadataHttpResponse;
 import vault.domain.response.HttpResponse.SecretMetadataHttpResponse;
+import vault.domain.response.HttpResponse.StringMapHttpResponse;
 import vault.domain.response.MountOutput;
 import vault.exception.VaultApiException;
 import vault.exception.VaultAuthorizationException;
@@ -198,7 +198,7 @@ public final class KV extends VaultBackend {
 		return result;
 	}
 
-	public Map<String, Set<String>> listSecrets(String path) {
+	public KeyList listSecrets(String path) {
 		Map<String, String> queryParameters = Collections.singletonMap("list", "true");
 		String apiPath = null;
 
@@ -209,14 +209,14 @@ public final class KV extends VaultBackend {
 		}
 
 		try {
-			return get(apiPath, queryParameters, KVListHttpResponse.class).getBody().getData();
+			return get(apiPath, queryParameters, KeyListHttpResponse.class).getBody().getData();
 		} catch (VaultApiException e) {
 			this.log.error("Error listing secret keys at path {} in KV {} (V{}).", path, this.name, Integer.valueOf(this.version), e);
 		} catch (VaultAuthorizationException e) {
 			this.log.error("Token is not authorized to lists secrets at path {} in KV backend {} (V{}).", path, this.name, Integer.valueOf(this.version), e);
 		}
 
-		return Collections.emptyMap();
+		return null;
 	}
 
 	public Configuration readEngineConfiguration() {
@@ -279,8 +279,8 @@ public final class KV extends VaultBackend {
 		StringBuilder pathToCheck = new StringBuilder("");
 		String[] splitPath = path.split("(?<=/)");
 		for (String split : splitPath) {
-			Map<String, Set<String>> keys = listSecrets(pathToCheck.toString());
-			if (keys == null || !keys.containsKey("keys") || !keys.get("keys").contains(split)) {
+			KeyList keyList = listSecrets(pathToCheck.toString());
+			if (keyList == null || keyList.getKeys() == null || !keyList.getKeys().contains(split)) {
 				return false;
 			}
 			pathToCheck.append(split);
@@ -390,7 +390,7 @@ public final class KV extends VaultBackend {
 
 	private HttpResponse<Map<String, String>> readSecretV1(String path) {
 		try {
-			return get(this.getKvV1ApiPath(path), null, KVHttpResponseV1.class).getBody();
+			return get(this.getKvV1ApiPath(path), null, StringMapHttpResponse.class).getBody();
 		} catch (VaultApiException e) {
 			this.log.error("Error reading from path {} in KV backend {} (V1)", path, this.name, e);
 		} catch (VaultAuthorizationException e) {
@@ -404,7 +404,7 @@ public final class KV extends VaultBackend {
 		Map<String, String> queryParameters = Collections.singletonMap("version", String.valueOf(kvVersion));
 
 		try {
-			return get(this.getKvV2DataApiPath(path), queryParameters, KVHttpResponseV2.class).getBody();
+			return get(this.getKvV2DataApiPath(path), queryParameters, KvV2HttpResponse.class).getBody();
 		} catch (VaultApiException e) {
 			this.log.error("Error reading from path {} using kv version {} in KV backend {} (V2).", path, Integer.valueOf(kvVersion), this.name, e);
 		} catch (VaultAuthorizationException e) {

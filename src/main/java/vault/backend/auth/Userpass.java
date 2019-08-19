@@ -7,7 +7,7 @@ import vault.Vault;
 import vault.backend.BackendConfig;
 import vault.backend.Backends;
 import vault.backend.VaultBackend;
-import vault.domain.auth.KeyList;
+import vault.domain.KeyList;
 import vault.domain.auth.VaultAuthentication;
 import vault.domain.auth.userpass.UserpassCreate;
 import vault.domain.response.HttpAuth;

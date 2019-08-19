@@ -39,18 +39,6 @@ public final class ActiveVault implements Vault {
 		this.vaultToken = vaultToken;
 	}
 
-	private ActiveVault(String vaultAddress, VaultTokenFactory vaultTokenFactory) {
-		this(vaultAddress, vaultTokenFactory.getVaultToken());
-	}
-
-	private ActiveVault(VaultConfiguration vaultConfiguration) {
-		this(vaultConfiguration.getVaultAddress(), vaultConfiguration.getVaultToken());
-	}
-
-	private ActiveVault(Vault vault) {
-		this(vault.getVaultAddress(), vault.getVaultToken());
-	}
-
 	public static ActiveVault newAndInitialize(String vaultAddress, String vaultToken) throws VaultHealthException {
 		ActiveVault vault = new ActiveVault(vaultAddress, vaultToken);
 		vault.updateHealth();
@@ -59,24 +47,15 @@ public final class ActiveVault implements Vault {
 	}
 
 	public static ActiveVault newAndInitialize(String vaultAddress, VaultTokenFactory vaultTokenFactory) throws VaultHealthException {
-		ActiveVault vault = new ActiveVault(vaultAddress, vaultTokenFactory);
-		vault.updateHealth();
-		vault.updateMounts();
-		return vault;
+		return ActiveVault.newAndInitialize(vaultAddress, vaultTokenFactory.getVaultToken());
 	}
 
 	public static ActiveVault newAndInitialize(VaultConfiguration vaultConfiguration) throws VaultHealthException {
-		ActiveVault vault = new ActiveVault(vaultConfiguration);
-		vault.updateHealth();
-		vault.updateMounts();
-		return vault;
+		return ActiveVault.newAndInitialize(vaultConfiguration.getVaultAddress(), vaultConfiguration.getVaultToken());
 	}
 
 	public static ActiveVault newAndInitialize(Vault vault) throws VaultHealthException {
-		ActiveVault newVault = new ActiveVault(vault);
-		newVault.updateHealth();
-		newVault.updateMounts();
-		return newVault;
+		return ActiveVault.newAndInitialize(vault.getVaultAddress(), vault.getVaultToken());
 	}
 
 	public KV getKVBackend(String name) {

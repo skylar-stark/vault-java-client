@@ -1,4 +1,4 @@
-package vault.domain.auth;
+package vault.domain;
 
 import static vault.util.Util.copyList;
 
@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class KeyList implements Serializable {
-	private static final long serialVersionUID = -8132709681241284504L;
+	private static final long serialVersionUID = 6304854222330447300L;
 
 	@JsonProperty("keys")
 	private List<String> keys;
