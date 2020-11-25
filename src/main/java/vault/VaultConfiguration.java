@@ -2,6 +2,7 @@ package vault;
 
 import static vault.util.Util.checkAllowedValue;
 
+import vault.rest.VaultRestClient;
 import vault.token.VaultTokenFactory;
 
 public final class VaultConfiguration {
@@ -10,6 +11,7 @@ public final class VaultConfiguration {
 	private String vaultAddress;
 	private String vaultHost;
 	private Integer vaultPort;
+	private Class<? extends VaultRestClient> vaultRestClientClass;
 	private String vaultScheme;
 	private String vaultToken;
 	private VaultTokenFactory vaultTokenFactory;

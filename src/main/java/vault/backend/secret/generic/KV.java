@@ -5,6 +5,7 @@ import static vault.util.Util.checkArgumentCondition;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -21,8 +22,8 @@ import vault.domain.kv.SecretMetadata;
 import vault.domain.kv.V2Request;
 import vault.domain.kv.V2Response;
 import vault.domain.response.HttpResponse;
-import vault.domain.response.HttpResponse.KvV2HttpResponse;
 import vault.domain.response.HttpResponse.KeyListHttpResponse;
+import vault.domain.response.HttpResponse.KvV2HttpResponse;
 import vault.domain.response.HttpResponse.MetadataHttpResponse;
 import vault.domain.response.HttpResponse.SecretMetadataHttpResponse;
 import vault.domain.response.HttpResponse.StringMapHttpResponse;
@@ -121,12 +122,10 @@ public final class KV extends VaultBackend {
 			}
 			return true;
 		} catch (VaultApiException e) {
-			this.log.error("Error deleting secret at path {} in KV {} (V{}).", path, this.name, Integer.valueOf(this.version), e);
+			throw new VaultException(e, "Error deleting secret at path {} in KV {} (V{}).", path, this.name, Integer.valueOf(this.version));
 		} catch (VaultAuthorizationException e) {
-			this.log.error("Token is not authorized to delete secret at path {} in KV backend {} (V{}).", path, this.name, Integer.valueOf(this.version), e);
+			throw new VaultException(e, "Token is not authorized to delete secret at path %s in KV backend %s (V%s).", path, this.name, Integer.valueOf(this.version));
 		}
-
-		return false;
 	}
 
 	public boolean deleteSecretVersions(String path, int... kvVersions) {

@@ -14,6 +14,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import vault.Vault;
 import vault.exception.VaultApiException;
 import vault.exception.VaultAuthorizationException;
 import vault.exception.VaultException;
@@ -26,15 +28,19 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	private String baseUrl;
 	private String vaultToken;
 
+	public VaultOkHttp3RestClient(Vault vault) {
+		this(vault.getVaultAddress(), vault.getVaultToken());
+	}
+
 	public VaultOkHttp3RestClient(String baseUrl, String vaultToken) {
 		this.baseUrl = baseUrl;
 		this.vaultToken = vaultToken;
 	}
 
-	public static String getResponseBody(Response response, boolean onlyOnSuccess) throws VaultApiException, VaultAuthorizationException {
+	public static String getResponseBody(Response response, boolean onlyOnSuccess) throws VaultApiException {
 		if (!onlyOnSuccess || response.isSuccessful()) {
-			try {
-				return response.body().string();
+			try (ResponseBody responseBody = response.body()) {
+				return responseBody.string();
 			} catch (IOException e) {
 				throw new VaultApiException("Error getting body from Response.", e);
 			}
@@ -67,12 +73,12 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 		return response.code() >= 500 && response.code() < 600;
 	}
 
-	public RequestBody createRequestBody(Object payload) throws VaultApiException {
+	public RequestBody createRequestBody(Object payload) {
 		return RequestBody.create(writeObjectAsJson(payload), MediaType.get("application/json; charset=utf-8"));
 	}
 
 	@Override
-	public VaultRestResponse<String> delete(VaultRestRequest vaultRequest) throws VaultApiException, VaultAuthorizationException {
+	public VaultRestResponse<String> delete(VaultRestRequest vaultRequest) throws VaultApiException {
 		Request.Builder requestBuilder = getOkHttp3RequestBuilder(vaultRequest);
 
 		Request request;
@@ -88,7 +94,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public <T> VaultRestResponse<T> delete(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	public <T> VaultRestResponse<T> delete(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException {
 		Request.Builder requestBuilder = getOkHttp3RequestBuilder(vaultRequest);
 
 		Request request;
@@ -104,7 +110,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public VaultRestResponse<String> get(VaultRestRequest vaultRequest) throws VaultApiException, VaultAuthorizationException {
+	public VaultRestResponse<String> get(VaultRestRequest vaultRequest) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).get().build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode()), response.code());
@@ -112,7 +118,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public <T> VaultRestResponse<T> get(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	public <T> VaultRestResponse<T> get(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).get().build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode(), clazz), response.code());
@@ -124,17 +130,21 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 		return this.baseUrl;
 	}
 
+	private String getVaultToken() {
+		return this.vaultToken;
+	}
+
 	private Request.Builder getOkHttp3RequestBuilder(VaultRestRequest vaultRequest) {
 		if (vaultRequest == null) {
 			throw new NullPointerException("VaultRestRequest cannot be null.");
 		}
 
-		HttpUrl.Builder httpUrlBuilder = HttpUrl.parse(this.baseUrl + vaultRequest.getPath()).newBuilder();
+		HttpUrl.Builder httpUrlBuilder = HttpUrl.parse(getBaseUrl() + vaultRequest.getPath()).newBuilder();
 		if (vaultRequest.getQueryParameters() != null) {
 			vaultRequest.getQueryParameters().forEach(httpUrlBuilder::setQueryParameter);
 		}
 
-		return new Request.Builder().url(httpUrlBuilder.build()).header("X-Vault-Token", this.vaultToken);
+		return new Request.Builder().url(httpUrlBuilder.build()).header("X-Vault-Token", getVaultToken());
 	}
 
 	private Response getResponse(Request request) throws VaultApiException {
@@ -145,7 +155,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 		}
 	}
 
-	public <T> T getResponseBody(Response response, boolean onlyOnSuccess, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	private <T> T getResponseBody(Response response, boolean onlyOnSuccess, Class<T> clazz) throws VaultApiException {
 		try {
 			return this.objectMapper.readValue(getResponseBody(response, onlyOnSuccess), clazz);
 		} catch (IOException e) {
@@ -154,7 +164,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public VaultRestResponse<String> head(VaultRestRequest vaultRequest) throws VaultApiException, VaultAuthorizationException {
+	public VaultRestResponse<String> head(VaultRestRequest vaultRequest) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).head().build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode()), response.code());
@@ -162,7 +172,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public <T> VaultRestResponse<T> head(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	public <T> VaultRestResponse<T> head(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).head().build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode(), clazz), response.code());
@@ -170,7 +180,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public VaultRestResponse<String> patch(VaultRestRequest vaultRequest) throws VaultApiException, VaultAuthorizationException {
+	public VaultRestResponse<String> patch(VaultRestRequest vaultRequest) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).patch(createRequestBody(vaultRequest.getPayload())).build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode()), response.code());
@@ -178,7 +188,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public <T> VaultRestResponse<T> patch(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	public <T> VaultRestResponse<T> patch(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).patch(createRequestBody(vaultRequest.getPayload())).build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode(), clazz), response.code());
@@ -186,7 +196,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public VaultRestResponse<String> post(VaultRestRequest vaultRequest) throws VaultApiException, VaultAuthorizationException {
+	public VaultRestResponse<String> post(VaultRestRequest vaultRequest) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).post(createRequestBody(vaultRequest.getPayload())).build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode()), response.code());
@@ -194,7 +204,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public <T> VaultRestResponse<T> post(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	public <T> VaultRestResponse<T> post(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).post(createRequestBody(vaultRequest.getPayload())).build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode(), clazz), response.code());
@@ -202,7 +212,7 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public VaultRestResponse<String> put(VaultRestRequest vaultRequest) throws VaultApiException, VaultAuthorizationException {
+	public VaultRestResponse<String> put(VaultRestRequest vaultRequest) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).put(createRequestBody(vaultRequest.getPayload())).build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode()), response.code());
@@ -210,25 +220,21 @@ public class VaultOkHttp3RestClient implements VaultRestClient {
 	}
 
 	@Override
-	public <T> VaultRestResponse<T> put(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	public <T> VaultRestResponse<T> put(VaultRestRequest vaultRequest, Class<T> clazz) throws VaultApiException {
 		Request request = getOkHttp3RequestBuilder(vaultRequest).put(createRequestBody(vaultRequest.getPayload())).build();
 		try (Response response = getResponse(request)) {
 			return new VaultRestResponse<>(getResponseBody(response, vaultRequest.isRequireSuccessfulStatusCode(), clazz), response.code());
 		}
 	}
 
-	public void setVaultToken(String vaultToken) {
-		this.vaultToken = vaultToken;
-	}
-
-	private String writeObjectAsJson(Object object) throws VaultApiException {
+	private String writeObjectAsJson(Object object) {
 		try {
 			this.log.trace("Writing entity {} as JSON String", object);
 			String jsonString = this.objectMapper.writeValueAsString(object);
 			this.log.trace("JSON String: {}", jsonString);
 			return jsonString;
 		} catch (JsonProcessingException e) {
-			throw new VaultApiException("Error converting payload to JSON.", e);
+			throw new VaultException("Error converting payload to JSON.", e);
 		}
 	}
 }

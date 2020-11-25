@@ -3,6 +3,7 @@ package vault.domain.response;
 import static vault.util.Util.copyList;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,11 +22,11 @@ import vault.domain.kv.V2Response;
 import vault.domain.ssh.Credential;
 import vault.domain.ssh.Key;
 import vault.domain.ssh.Role;
-import vault.domain.ssh.Roles;
 import vault.domain.ssh.RoleList;
+import vault.domain.ssh.Roles;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class HttpResponse<T> implements Serializable {
+public abstract class HttpResponse<T extends Serializable> implements Serializable {
 	private static final long serialVersionUID = -662868336457859523L;
 
 	@JsonProperty("auth")
@@ -147,7 +148,7 @@ public abstract class HttpResponse<T> implements Serializable {
 		private static final long serialVersionUID = -8786210996376002666L;
 	}
 
-	public static final class MountHttpResponse extends HttpResponse<Map<String, Map<String, MountOutput>>> {
+	public static final class MountHttpResponse extends HttpResponse<HashMap<String, Map<String, MountOutput>>> {
 		private static final long serialVersionUID = -7575010113736184280L;
 	}
 
@@ -155,7 +156,7 @@ public abstract class HttpResponse<T> implements Serializable {
 		private static final long serialVersionUID = 3583640597017345121L;
 	}
 
-	public static final class GenericHttpResponse extends HttpResponse<Object> {
+	public static final class GenericHttpResponse extends HttpResponse<Serializable> {
 		private static final long serialVersionUID = 1255302066360280962L;
 	}
 
@@ -175,7 +176,7 @@ public abstract class HttpResponse<T> implements Serializable {
 		private static final long serialVersionUID = -358744517454414719L;
 	}
 
-	public static final class StringMapHttpResponse extends HttpResponse<Map<String, String>> {
+	public static final class StringMapHttpResponse extends HttpResponse<HashMap<String, String>> {
 		private static final long serialVersionUID = 1320358832831994708L;
 	}
 

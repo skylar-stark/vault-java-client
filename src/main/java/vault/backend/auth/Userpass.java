@@ -3,6 +3,7 @@ package vault.backend.auth;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import vault.Vault;
 import vault.backend.BackendConfig;
 import vault.backend.Backends;
@@ -12,8 +13,8 @@ import vault.domain.auth.VaultAuthentication;
 import vault.domain.auth.userpass.UserpassCreate;
 import vault.domain.response.HttpAuth;
 import vault.domain.response.HttpResponse.GenericHttpResponse;
-import vault.domain.response.HttpResponse.VaultAuthenticationHttpResponse;
 import vault.domain.response.HttpResponse.KeyListHttpResponse;
+import vault.domain.response.HttpResponse.VaultAuthenticationHttpResponse;
 import vault.domain.response.MountOutput;
 import vault.exception.VaultApiException;
 import vault.exception.VaultAuthorizationException;

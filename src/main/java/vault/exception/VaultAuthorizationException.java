@@ -1,6 +1,6 @@
 package vault.exception;
 
-public class VaultAuthorizationException extends Exception {
+public class VaultAuthorizationException extends RuntimeException {
 	private static final long serialVersionUID = 6921910884067849846L;
 
 	public VaultAuthorizationException() {

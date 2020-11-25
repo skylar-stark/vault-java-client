@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import vault.Vault;
 import vault.exception.VaultApiException;
-import vault.exception.VaultAuthorizationException;
 import vault.rest.VaultOkHttp3RestClient;
 import vault.rest.VaultRestClient;
 import vault.rest.VaultRestRequest;
@@ -36,7 +35,7 @@ public abstract class VaultBackend {
 		this.sealWrap = sealWrap;
 		this.type = type;
 
-		this.restClient = new VaultOkHttp3RestClient(vault.getVaultAddress(), vault.getVaultToken());
+		this.restClient = new VaultOkHttp3RestClient(vault);
 	}
 
 	public String getAccessor() {
@@ -123,67 +122,67 @@ public abstract class VaultBackend {
 		return Objects.hash(this.accessor, this.config, this.description, Boolean.valueOf(this.local), this.name, Boolean.valueOf(this.sealWrap), this.vault);
 	}
 
-	protected VaultRestResponse<String> delete(String path) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> delete(String path) throws VaultApiException {
 		return delete(path, null);
 	}
 
-	protected VaultRestResponse<String> delete(String path, Object payload) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> delete(String path, Object payload) throws VaultApiException {
 		return this.restClient.delete(new VaultRestRequest(path, null, payload, true));
 	}
 
-	protected VaultRestResponse<String> get(String path) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> get(String path) throws VaultApiException {
 		return get(path, null, true);
 	}
 
-	protected <T> VaultRestResponse<T> get(String path, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	protected <T> VaultRestResponse<T> get(String path, Class<T> clazz) throws VaultApiException {
 		return get(path, null, true, clazz);
 	}
 
-	protected VaultRestResponse<String> get(String path, Map<String, String> queryParameters) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> get(String path, Map<String, String> queryParameters) throws VaultApiException {
 		return get(path, queryParameters, true);
 	}
 
-	protected VaultRestResponse<String> get(String path, Map<String, String> queryParameters, boolean onlyOnSuccess) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> get(String path, Map<String, String> queryParameters, boolean onlyOnSuccess) throws VaultApiException {
 		return this.restClient.get(new VaultRestRequest(path, queryParameters, null, onlyOnSuccess));
 	}
 
-	protected <T> VaultRestResponse<T> get(String path, Map<String, String> queryParameters, boolean onlyOnSuccess, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	protected <T> VaultRestResponse<T> get(String path, Map<String, String> queryParameters, boolean onlyOnSuccess, Class<T> clazz) throws VaultApiException {
 		return this.restClient.get(new VaultRestRequest(path, queryParameters, null, onlyOnSuccess), clazz);
 	}
 
-	protected <T> VaultRestResponse<T> get(String path, Map<String, String> queryParameters, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	protected <T> VaultRestResponse<T> get(String path, Map<String, String> queryParameters, Class<T> clazz) throws VaultApiException {
 		return get(path, queryParameters, true, clazz);
 	}
 
-	protected VaultRestResponse<String> head(String path) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> head(String path) throws VaultApiException {
 		return head(path, null);
 	}
 
-	protected VaultRestResponse<String> head(String path, Map<String, String> queryParameters) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> head(String path, Map<String, String> queryParameters) throws VaultApiException {
 		return this.restClient.head(new VaultRestRequest(path, queryParameters, null, true));
 	}
 
-	protected VaultRestResponse<String> patch(String path, Object payload) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> patch(String path, Object payload) throws VaultApiException {
 		return this.restClient.patch(new VaultRestRequest(path, null, payload, true));
 	}
 
-	protected <T> VaultRestResponse<T> patch(String path, Object payload, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	protected <T> VaultRestResponse<T> patch(String path, Object payload, Class<T> clazz) throws VaultApiException {
 		return this.restClient.patch(new VaultRestRequest(path, null, payload, true), clazz);
 	}
 
-	protected VaultRestResponse<String> post(String path, Object payload) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> post(String path, Object payload) throws VaultApiException {
 		return this.restClient.post(new VaultRestRequest(path, null, payload, true));
 	}
 
-	protected <T> VaultRestResponse<T> post(String path, Object payload, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	protected <T> VaultRestResponse<T> post(String path, Object payload, Class<T> clazz) throws VaultApiException {
 		return this.restClient.post(new VaultRestRequest(path, null, payload, true), clazz);
 	}
 
-	protected VaultRestResponse<String> put(String path, Object payload) throws VaultApiException, VaultAuthorizationException {
+	protected VaultRestResponse<String> put(String path, Object payload) throws VaultApiException {
 		return this.restClient.put(new VaultRestRequest(path, null, payload, true));
 	}
 
-	protected <T> VaultRestResponse<T> put(String path, Object payload, Class<T> clazz) throws VaultApiException, VaultAuthorizationException {
+	protected <T> VaultRestResponse<T> put(String path, Object payload, Class<T> clazz) throws VaultApiException {
 		return this.restClient.put(new VaultRestRequest(path, null, payload, true), clazz);
 	}
 }
